@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Still — a little time</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap');
+:root{color-scheme:dark;font-family:'DM Sans',sans-serif;background:#141b19;color:#ecf0e9}*{box-sizing:border-box}body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% 40%,#25352d 0, #18221e 45%,#141b19 85%)}header{display:flex;justify-content:space-between;align-items:center;padding:32px 48px}.brand{font-family:Manrope,sans-serif;font-size:24px;font-weight:700;letter-spacing:-1px}.brand span{color:#bcd29c} .location{font-size:12px;color:#9ea99f;display:flex;align-items:center;gap:9px}.dot{width:6px;height:6px;border-radius:50%;background:#bcd29c;box-shadow:0 0 10px #bcd29c50}main{text-align:center;padding:34px 20px 60px}.eyebrow{text-transform:uppercase;letter-spacing:3px;font-size:10px;color:#a5b39f;margin:0 0 15px}h1{font-family:Manrope,sans-serif;font-weight:400;font-size:32px;letter-spacing:-1px;margin:0 0 36px}.clock{width:min(320px,78vw);aspect-ratio:1;margin:auto;border-radius:50%;background:linear-gradient(145deg,#2c382d,#202b23);border:1px solid #53604455;box-shadow:0 24px 70px #0005,inset 0 0 40px #0002;position:relative}.tick{position:absolute;left:calc(50% - 1px);top:14px;width:2px;height:5px;background:#80907770;transform-origin:1px calc(160px - 14px)}.tick.major{height:11px;background:#bdc6ac}.number{position:absolute;font-size:14px;color:#bac5af}.n12{top:28px;left:50%;transform:translateX(-50%)}.n3{right:32px;top:50%;transform:translateY(-50%)}.n6{bottom:28px;left:50%;transform:translateX(-50%)}.n9{left:32px;top:50%;transform:translateY(-50%)}.hand{position:absolute;bottom:50%;left:50%;transform-origin:bottom;border-radius:5px;will-change:transform}.hour{height:25%;width:5px;background:#dbe3cb;margin-left:-2.5px}.minute{height:35%;width:3px;background:#dbe3cb;margin-left:-1.5px}.second{height:39%;width:1px;background:#c8a77a;margin-left:-.5px}.pin{position:absolute;top:50%;left:50%;width:10px;height:10px;background:#c8a77a;border:3px solid #28332a;border-radius:50%;transform:translate(-50%,-50%)}.digital{font-family:Manrope,sans-serif;font-size:58px;font-weight:400;letter-spacing:-2px;margin-top:32px;font-variant-numeric:tabular-nums}.period{font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1px;color:#a5b39f;margin-left:10px}.date{color:#a5b39f;font-size:13px;margin:10px 0 26px}.switch{display:inline-flex;padding:4px;background:#ffffff05;border:1px solid #ffffff0c;border-radius:30px;gap:3px}button{border:0;border-radius:22px;padding:9px 17px;background:transparent;color:#98a595;font:500 11px 'DM Sans',sans-serif;cursor:pointer}button[aria-pressed=true]{background:#bcd29c;color:#23301f}button:focus-visible{outline:2px solid #eddbbc;outline-offset:3px}footer{text-align:center;color:#6f7d70;font-size:11px;padding:0 20px 28px;letter-spacing:.3px}footer span{color:#b5c0aa;margin:0 8px}@media(max-width:500px){header{padding:25px 24px}.location{font-size:10px}main{padding-top:28px}h1{font-size:27px}.digital{font-size:48px}}
+</style>
+</head>
+<body>
+<header><div class="brand">still<span>.</span></div><div class="location"><span class="dot"></span><span id="zone">Local time</span></div></header>
+<main>
+<p class="eyebrow">A little room to breathe</p><h1>Be here, now.</h1>
+<div class="clock" role="img" aria-label="Analog clock showing your local time"><span class="number n12">12</span><span class="number n3">3</span><span class="number n6">6</span><span class="number n9">9</span><div class="hand hour" id="hour"></div><div class="hand minute" id="minute"></div><div class="hand second" id="second"></div><div class="pin"></div></div>
+<div class="digital"><span id="time">--:--:--</span><span class="period" id="period"></span></div>
+<p class="date" id="date"></p>
+<div class="switch" role="group" aria-label="Time format"><button id="twelve" aria-pressed="true">12-hour</button><button id="twentyfour" aria-pressed="false">24-hour</button></div>
+</main>
+<footer>Slow down.<span>✦</span>You're right on time.</footer>
+<script>
+const clock=document.querySelector('.clock');
+for(let i=0;i<60;i++){const tick=document.createElement('i');tick.className='tick'+(i%5===0?' major':'');tick.style.transform=`rotate(${i*6}deg)`;clock.prepend(tick)}
+function resizeTicks(){const radius=clock.clientWidth/2;document.querySelectorAll('.tick').forEach(t=>t.style.transformOrigin=`1px ${radius-14}px`)}
+new ResizeObserver(resizeTicks).observe(clock);
+let is24=false;
+try{is24=localStorage.getItem('still-format')==='24'}catch{}
+const el=id=>document.getElementById(id);
+function update(){const now=new Date(),h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();el('hour').style.transform=`rotate(${h*30+m*.5+s/120}deg)`;el('minute').style.transform=`rotate(${m*6+s*.1}deg)`;el('second').style.transform=`rotate(${s*6}deg)`;el('time').textContent=[is24?h:h%12||12,m,s].map(v=>String(v).padStart(2,'0')).join(':');el('period').textContent=is24?'':h>=12?'PM':'AM';el('date').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(now);el('twelve').setAttribute('aria-pressed',String(!is24));el('twentyfour').setAttribute('aria-pressed',String(is24))}
+function setFormat(value){is24=value;try{localStorage.setItem('still-format',value?'24':'12')}catch{}update()}
+el('twelve').onclick=()=>setFormat(false);el('twentyfour').onclick=()=>setFormat(true);
+el('zone').textContent=Intl.DateTimeFormat().resolvedOptions().timeZone.replaceAll('_',' ');
+update();setInterval(update,1000);
+</script>
+</body>
+</html>
